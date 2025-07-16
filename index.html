@@ -4,6 +4,113 @@
   <meta charset="UTF-8" />
   <title>Malla Biotecnología ORT</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+      color: #005a5a;
+    }
+
+    .resumen-box {
+      margin: 20px auto;
+      padding: 10px;
+      background: #fff;
+      border-left: 5px solid #4caf50;
+      font-weight: bold;
+      max-width: 600px;
+    }
+
+    .barra {
+      width: 100%;
+      background-color: #ddd;
+      height: 20px;
+      border-radius: 10px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    #barraProgreso {
+      height: 100%;
+      width: 0%;
+      background-color: #4caf50;
+      text-align: right;
+      line-height: 20px;
+      color: white;
+      border-radius: 10px;
+    }
+
+    .semestre {
+      margin: 20px 0;
+      padding: 10px;
+      background: #fff;
+      border-left: 5px solid #007BFF;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .semestre h2 {
+      margin-bottom: 10px;
+      color: #007BFF;
+    }
+
+    .semestre ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .semestre li {
+      padding: 8px;
+      margin: 4px 0;
+      background-color: #eee;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .semestre li:hover {
+      background-color: #ddd;
+    }
+
+    li.aprobada { background-color: #c8e6c9; }
+    li.cursando { background-color: #fff9c4; }
+    li.pendiente { background-color: #ffcdd2; }
+
+    .info-box {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e0f7fa;
+      border-left: 4px solid #00796b;
+      font-weight: bold;
+    }
+
+    #buscador {
+      display: block;
+      margin: 0 auto 20px auto;
+      padding: 8px;
+      width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .print-button {
+      display: block;
+      margin: 30px auto;
+      padding: 10px 20px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .print-button:hover {
+      background: #0056b3;
+    }
+  </style>
 </head>
 <body>
   <h1>Malla de Ingeniería en Biotecnología – ORT Uruguay</h1>
@@ -18,7 +125,6 @@
   <input type="text" id="buscador" placeholder="Buscar materia...">
 
   <div id="contenedor-malla">
-    <!-- Aquí comienza el contenido de los semestres (copiado tal cual del original) -->
     <div class="semestre" id="a1s1">
       <h2>1er Año - Semestre 1</h2>
       <ul>
@@ -42,15 +148,89 @@
         <li data-id="mat12">Taller de física</li>
       </ul>
     </div>
-
-    <!-- El resto de los semestres sigue igual -->
-    <!-- ... -->
   </div>
 
   <div id="infoMateria" class="info-box"></div>
 
   <button onclick="window.print()" class="print-button">🖨️ Imprimir / Exportar a PDF</button>
 
-  <script src="script.js"></script>
+  <script>
+    const materias = {
+      mat1: "Matemática 1", mat2: "Química general", mat3: "Biología",
+      mat4: "Introducción a la biotecnología", mat5: "Introducción al laboratorio",
+      mat6: "Matemática 2", mat7: "Química orgánica", mat8: "Química biológica",
+      mat9: "Física 1", mat10: "Aspectos éticos y sociales de la biotecnología",
+      mat11: "Laboratorio de macromoléculas", mat12: "Taller de física"
+    };
+
+    let estados = JSON.parse(localStorage.getItem("estadosMaterias")) || {};
+
+    function mostrarInfo(id) {
+      const infoDiv = document.getElementById("infoMateria");
+      infoDiv.innerText = materias[id];
+    }
+
+    function actualizarColores() {
+      document.querySelectorAll("li[data-id]").forEach(li => {
+        const id = li.dataset.id;
+        li.classList.remove("aprobada", "cursando", "pendiente");
+        if (estados[id]) li.classList.add(estados[id]);
+      });
+    }
+
+    function actualizarResumen() {
+      let aprobadas = 0;
+      let cursando = 0;
+      let pendientes = 0;
+
+      Object.values(estados).forEach(estado => {
+        if (estado === "aprobada") aprobadas++;
+        else if (estado === "cursando") cursando++;
+        else pendientes++;
+      });
+
+      const total = Object.keys(materias).length;
+      const porcentaje = Math.round((aprobadas / total) * 100);
+
+      document.querySelector("#resumen p").innerText =
+        `✅ Aprobadas: ${aprobadas} | 🟡 Cursando: ${cursando} | ❌ Pendientes: ${total - aprobadas - cursando}`;
+
+      document.querySelector("#barraProgreso").style.width = `${porcentaje}%`;
+      document.querySelector("#barraProgreso").innerText = `${porcentaje}%`;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("li[data-id]").forEach(li => {
+        const id = li.dataset.id;
+
+        li.addEventListener("click", () => mostrarInfo(id));
+
+        li.addEventListener("dblclick", () => {
+          const nuevoEstado = prompt("Escribí: A (Aprobada), C (Cursando) o P (Pendiente)").toUpperCase();
+          if (nuevoEstado === "A") {
+            estados[id] = "aprobada";
+          } else if (nuevoEstado === "C") {
+            estados[id] = "cursando";
+          } else {
+            estados[id] = "pendiente";
+          }
+          localStorage.setItem("estadosMaterias", JSON.stringify(estados));
+          actualizarColores();
+          actualizarResumen();
+        });
+      });
+
+      actualizarColores();
+      actualizarResumen();
+    });
+
+    document.getElementById("buscador").addEventListener("input", e => {
+      const filtro = e.target.value.toLowerCase();
+      document.querySelectorAll("li[data-id]").forEach(li => {
+        const nombre = li.innerText.toLowerCase();
+        li.style.display = nombre.includes(filtro) ? "list-item" : "none";
+      });
+    });
+  </script>
 </body>
 </html>
