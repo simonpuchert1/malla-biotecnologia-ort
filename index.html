@@ -124,44 +124,49 @@
 
   <input type="text" id="buscador" placeholder="Buscar materia...">
 
-  <div id="contenedor-malla">
-    <div class="semestre" id="a1s1">
-      <h2>1er Año - Semestre 1</h2>
-      <ul>
-        <li data-id="mat1">Matemática 1</li>
-        <li data-id="mat2">Química general</li>
-        <li data-id="mat3">Biología</li>
-        <li data-id="mat4">Introducción a la biotecnología</li>
-        <li data-id="mat5">Introducción al laboratorio</li>
-      </ul>
-    </div>
-
-    <div class="semestre" id="a1s2">
-      <h2>1er Año - Semestre 2</h2>
-      <ul>
-        <li data-id="mat6">Matemática 2</li>
-        <li data-id="mat7">Química orgánica</li>
-        <li data-id="mat8">Química biológica</li>
-        <li data-id="mat9">Física 1</li>
-        <li data-id="mat10">Aspectos éticos y sociales de la biotecnología</li>
-        <li data-id="mat11">Laboratorio de macromoléculas</li>
-        <li data-id="mat12">Taller de física</li>
-      </ul>
-    </div>
-  </div>
+  <div id="contenedor-malla"></div>
 
   <div id="infoMateria" class="info-box"></div>
 
   <button onclick="window.print()" class="print-button">🖨️ Imprimir / Exportar a PDF</button>
 
   <script>
-    const materias = {
-      mat1: "Matemática 1", mat2: "Química general", mat3: "Biología",
-      mat4: "Introducción a la biotecnología", mat5: "Introducción al laboratorio",
-      mat6: "Matemática 2", mat7: "Química orgánica", mat8: "Química biológica",
-      mat9: "Física 1", mat10: "Aspectos éticos y sociales de la biotecnología",
-      mat11: "Laboratorio de macromoléculas", mat12: "Taller de física"
-    };
+    const materias = {};
+    const contenedor = document.getElementById("contenedor-malla");
+    const resumen = document.querySelector("#resumen p");
+    const barra = document.getElementById("barraProgreso");
+
+    const estructura = [
+      ["Matemática 1", "Química general", "Biología", "Introducción a la biotecnología", "Introducción al laboratorio"],
+      ["Matemática 2", "Química orgánica", "Química biológica", "Física 1", "Aspectos éticos y sociales de la biotecnología", "Laboratorio de macromoléculas", "Taller de física"],
+      ["Probabilidad y estadística", "Bioquímica", "Biología celular", "Fisicoquímica 1", "Física 2", "Laboratorio de biología celular"],
+      ["Matemática 3", "Genética y evolución", "Economía", "Biología molecular", "Fisicoquímica 2", "Laboratorio de enzimología", "Taller de cultivos de células y tejidos"],
+      ["Programación", "Microbiología", "Laboratorio de biología molecular", "Fenómenos de transporte", "Gestión de empresas"],
+      ["Bioinformática 1", "Electiva", "Inmunotecnologías", "Bioprocesos", "Laboratorio de microbiología", "Métodos y equipos analíticos", "Taller de métodos moleculares de diagnóstico"],
+      ["Bioinformática 2", "Bionegocios", "Ingeniería genética", "Propiedad intelectual e industrial", "Bioseparaciones", "Laboratorio de control de calidad"],
+      ["Agrobiotecnologías", "Inmunotecnologías 2", "Análisis y diseño de bioprocesos", "Temas avanzados en biotecnología", "Laboratorio de biotecnología vegetal"],
+      ["Pasantía o Electiva", "Tecnología de los alimentos", "Virología", "Taller de ingeniería genética"],
+      ["Vacunas", "Nanobiotecnología", "Biorremediación", "Trabajo final de carrera"]
+    ];
+
+    estructura.forEach((materiasSemestre, index) => {
+      const semestre = document.createElement("div");
+      semestre.className = "semestre";
+      const num = index + 1;
+      semestre.innerHTML = `<h2>${Math.ceil(num/2)}° Año - Semestre ${num % 2 === 0 ? 2 : 1}</h2><ul></ul>`;
+
+      const ul = semestre.querySelector("ul");
+      materiasSemestre.forEach((nombre, i) => {
+        const id = `mat${index + 1}_${i}`;
+        materias[id] = nombre;
+        const li = document.createElement("li");
+        li.dataset.id = id;
+        li.innerText = nombre;
+        ul.appendChild(li);
+      });
+
+      contenedor.appendChild(semestre);
+    });
 
     let estados = JSON.parse(localStorage.getItem("estadosMaterias")) || {};
 
@@ -192,28 +197,21 @@
       const total = Object.keys(materias).length;
       const porcentaje = Math.round((aprobadas / total) * 100);
 
-      document.querySelector("#resumen p").innerText =
-        `✅ Aprobadas: ${aprobadas} | 🟡 Cursando: ${cursando} | ❌ Pendientes: ${total - aprobadas - cursando}`;
-
-      document.querySelector("#barraProgreso").style.width = `${porcentaje}%`;
-      document.querySelector("#barraProgreso").innerText = `${porcentaje}%`;
+      resumen.innerText = `✅ Aprobadas: ${aprobadas} | 🟡 Cursando: ${cursando} | ❌ Pendientes: ${total - aprobadas - cursando}`;
+      barra.style.width = `${porcentaje}%`;
+      barra.innerText = `${porcentaje}%`;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll("li[data-id]").forEach(li => {
         const id = li.dataset.id;
-
         li.addEventListener("click", () => mostrarInfo(id));
-
         li.addEventListener("dblclick", () => {
           const nuevoEstado = prompt("Escribí: A (Aprobada), C (Cursando) o P (Pendiente)").toUpperCase();
-          if (nuevoEstado === "A") {
-            estados[id] = "aprobada";
-          } else if (nuevoEstado === "C") {
-            estados[id] = "cursando";
-          } else {
-            estados[id] = "pendiente";
-          }
+          if (nuevoEstado === "A") estados[id] = "aprobada";
+          else if (nuevoEstado === "C") estados[id] = "cursando";
+          else estados[id] = "pendiente";
+
           localStorage.setItem("estadosMaterias", JSON.stringify(estados));
           actualizarColores();
           actualizarResumen();
