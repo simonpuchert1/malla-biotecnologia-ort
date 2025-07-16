@@ -63,3 +63,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   actualizarColores();
 });
+<script src="script.js"></script>
