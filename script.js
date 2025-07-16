@@ -1,4 +1,3 @@
-// Lista de materias y nombres para mostrar (opcional: podrías poner más detalles luego)
 const materias = {
   mat1: "Matemática 1", mat2: "Química general", mat3: "Biología",
   mat4: "Introducción a la biotecnología", mat5: "Introducción al laboratorio",
@@ -24,7 +23,6 @@ const materias = {
   mat55: "Biorremediación", mat56: "Trabajo final de carrera"
 };
 
-// Cargar estados desde localStorage (si existen)
 let estados = JSON.parse(localStorage.getItem("estadosMaterias")) || {};
 
 function mostrarInfo(id) {
@@ -40,7 +38,6 @@ function actualizarColores() {
   });
 }
 
-// Guardar estado con doble clic
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("li[data-id]").forEach(li => {
     const id = li.dataset.id;
