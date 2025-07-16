@@ -6,6 +6,7 @@ body {
 
 h1 {
   text-align: center;
+  color: #005a5a;
 }
 
 .semestre {
@@ -13,6 +14,12 @@ h1 {
   padding: 10px;
   background: #fff;
   border-left: 5px solid #007BFF;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.semestre h2 {
+  margin-bottom: 10px;
+  color: #007BFF;
 }
 
 .semestre ul {
@@ -21,18 +28,35 @@ h1 {
 }
 
 .semestre li {
-  padding: 5px;
+  padding: 8px;
+  margin: 4px 0;
+  background-color: #eee;
+  border-radius: 5px;
   cursor: pointer;
   transition: background 0.3s;
 }
 
 .semestre li:hover {
-  background-color: #e0e0e0;
+  background-color: #ddd;
+}
+
+/* Colores por estado */
+li.aprobada {
+  background-color: #c8e6c9; /* verde claro */
+}
+
+li.cursando {
+  background-color: #fff9c4; /* amarillo claro */
+}
+
+li.pendiente {
+  background-color: #ffcdd2; /* rojo claro */
 }
 
 .info-box {
   margin-top: 20px;
-  padding: 10px;
-  background: #d0f0c0;
-  border: 1px solid #ccc;
+  padding: 15px;
+  background: #e0f7fa;
+  border-left: 4px solid #00796b;
+  font-weight: bold;
 }
